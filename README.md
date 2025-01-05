@@ -3,9 +3,11 @@
 
 
 ## Installation
-- To get started, you need to install [PHP Composer](https://getcomposer.org/).
-- `composer create-project balajidharma/laravel-vue-admin-panel admin-app`
-- `cd admin-app`
+- To get started, clone using the link https://github.com/sharonnaz/product-import.git.
+- `cd product-import`
+- `cd laravel`
+- `composer update`
+- `cp .env.example .env`
 - Create a new MYSQL database and update database details in `.env` file
 - `php artisan vendor:publish --tag=admin-core`
 - `php artisan migrate --seed --seeder=AdminCoreSeeder`
