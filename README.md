@@ -3,8 +3,7 @@
 
 
 ## Installation
-- To get started, clone using the link https://github.com/sharonnaz/product-import.git.
-- First configure the laravel part
+- To get started, clone the repo
 - `cd product-import`
 - `cd laravel`
 - `composer update`
