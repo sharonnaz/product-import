@@ -9,14 +9,13 @@ export const useProductsStore = defineStore("productsStore", {
   }),
 
   actions: {
+    /******************* List Products Api *******************/
     async fetchProducts(page = 1) {
       const formData = new FormData();
       formData.append('page', page);
 
       try {
-        console.log('Fetching products for page:', page);
         const token = localStorage.getItem("token");
-        
         if (!token) {
           throw new Error('No authentication token found');
         }
@@ -30,10 +29,7 @@ export const useProductsStore = defineStore("productsStore", {
           body: formData,
         });
 
-        console.log('Response status:', res.status);
         const data = await res.json();
-        console.log('Response data:', data);
-
         if (res.ok) {
           this.products = data.data;
           this.errors = null;
@@ -49,5 +45,46 @@ export const useProductsStore = defineStore("productsStore", {
       }
     },
 
+  /******************* File Import Api *******************/
+    async importCSV(file) {
+      const formData = new FormData();
+      formData.append('csv', file);
+
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) {
+          throw new Error('No authentication token found');
+        }
+
+        const res = await fetch("/api/import-products", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            Accept: "application/json",
+          },
+          body: formData,
+        });
+
+        const data = await res.json();
+        if (res.ok) {
+          this.uploadMessage = "File imported successfully!";
+          this.uploadErrors = [];
+          return data;
+        } else {
+          if (res.status === 422 && data.errors) {
+            this.uploadErrors = Object.values(data.errors).flat();
+          } else {
+            this.uploadErrors = [];
+          }
+          this.uploadMessage = "Error importing file.";
+          throw new Error("Failed to import file");
+        }
+      } catch (error) {
+        console.error('Error importing file:', error);
+        this.uploadMessage = "Error importing file.";
+        this.uploadErrors.push(error.message);
+        throw error;
+      }
+    },
   },
 });
