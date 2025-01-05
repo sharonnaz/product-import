@@ -1,4 +1,4 @@
-<h1 align="center">Laravel Vue Product Import</h1>
+<h1 align="center">Laravel Vue Web App</h1>
 <h3 align="center">Application using vue at the front-end and laravel at the backend to demonstrate signup, login and product csv import.</h3>
 
 
