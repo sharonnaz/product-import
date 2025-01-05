@@ -17,7 +17,7 @@
 - `npm install`
 - `npm run dev`
 -  Now click on the local url 
-- After signin and login , use the sample csv file to test file import
+- After signup and login , use the sample csv file to test file import
 
 
 
