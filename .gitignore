@@ -1,0 +1,9 @@
+# Root .gitignore
+# Ignore backend's node_modules and vendor
+/laravel/vendor
+/laravel/node_modules
+/laravel/.env
+
+# Ignore frontend's node_modules and build
+/vue/node_modules
+/vue/dist
