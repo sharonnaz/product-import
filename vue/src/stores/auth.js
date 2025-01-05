@@ -1,12 +1,10 @@
 import { defineStore } from "pinia";
 
 export const useAuthStore = defineStore("authStore", {
-  state: () => {
-    return {
-      user: null,
-      errors: {},
-    };
-  },
+  state: () => ({
+    user: null,
+    errors: {},
+  }),
   actions: {
     /******************* Get authenticated user *******************/
     async getUser() {
@@ -22,6 +20,7 @@ export const useAuthStore = defineStore("authStore", {
         }
       }
     },
+
     /******************* Login or Register user *******************/
     async authenticate(apiRoute, formData) {
       try {
@@ -32,32 +31,34 @@ export const useAuthStore = defineStore("authStore", {
           },
           body: JSON.stringify(formData),
         });
-    
+
         const data = await res.json();
-    
-        if (data.success) {
-          // Clear any previous errors
+
+        if (res.ok) {
+          // Clear previous errors
           this.errors = {};
-    
+
           // Store the token in localStorage
           localStorage.setItem("token", data.data.token);
-    
+
           // Set the authenticated user details
           this.user = { name: data.data.name };
-    
+
           // Navigate to the home page
           this.router.push({ name: "products" });
+        } else if (data.errors) {
+          // Map validation errors
+          this.errors = data.errors;
         } else {
-          // Handle non-successful response
+          // Handle other non-validation errors
           this.errors = { message: data.message || "An error occurred" };
         }
       } catch (error) {
-        // Handle network or unexpected errors
         this.errors = { message: "Unable to connect to the server." };
         console.error("Authentication error:", error);
       }
     },
-    
+
     /******************* Logout user *******************/
     async logout() {
       try {
@@ -68,16 +69,16 @@ export const useAuthStore = defineStore("authStore", {
             "Content-Type": "application/json",
           },
         });
-    
+
         const data = await res.json();
         console.log(data);
-    
+
         if (data.success) {
           // Clear user data and token on successful logout
           this.user = null;
           this.errors = {};
           localStorage.removeItem("token");
-    
+
           // Redirect to the home page
           this.router.push({ name: "login" });
         } else {
@@ -85,7 +86,6 @@ export const useAuthStore = defineStore("authStore", {
           this.errors = { message: data.message || "Failed to log out." };
         }
       } catch (error) {
-        // Handle network or unexpected errors
         this.errors = { message: "An error occurred while logging out." };
         console.error("Logout error:", error);
       }
