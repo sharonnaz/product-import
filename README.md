@@ -4,27 +4,20 @@
 
 ## Installation
 - To get started, clone using the link https://github.com/sharonnaz/product-import.git.
+- First configure the laravel part
 - `cd product-import`
 - `cd laravel`
 - `composer update`
 - `cp .env.example .env`
 - Create a new MYSQL database and update database details in `.env` file
-- `php artisan vendor:publish --tag=admin-core`
-- `php artisan migrate --seed --seeder=AdminCoreSeeder`
-- `php artisan storage:link`
+- Set QUEUE_CONNECTION=database in `.env` file
+- `php artisan migrate`
+- `php artisan serve`
+- `php artisan queue:work`
+- Now configure the vue part
 - `npm install`
 - `npm run dev`
-- `php artisan serve`
-- Now open http://localhost:8000/
+-  Now click on the local url 
 
-###### Super Admin Login
-- Email - superadmin@example.com
-- Password - password
-
-
-```
-
-
-```
 
 
