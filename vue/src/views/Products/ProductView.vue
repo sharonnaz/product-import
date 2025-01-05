@@ -1,91 +1,3 @@
-<script setup>
-import { useProductsStore } from "@/stores/product";
-import { storeToRefs } from "pinia";
-import { ref, onMounted } from "vue";
-
-const { fetchProducts, importCSV } = useProductsStore();
-const { products, errors } = storeToRefs(useProductsStore());
-
-const currentPage = ref(1);
-const totalPages = ref(0);
-const perPage = ref(10);
-const uploadMessage = ref('');
-const uploadErrors = ref([]);
-const isLoading = ref(false);
-
-const loadProducts = async (page = 1) => {
-  try {
-    isLoading.value = true;
-    const response = await fetchProducts(page);
-    console.log('API Response:', response); 
-    
-    if (response && response.data && response.data.data) {
-      products.value = response.data.data;
-      totalPages.value = response.data.last_page || 1;
-      perPage.value = response.data.per_page || 10;
-    } else {
-      products.value = [];
-      errors.value = { message: 'No products found.' };
-    }
-  } catch (error) {
-    console.error('Error fetching products:', error);
-    products.value = [];
-    errors.value = { message: 'An error occurred while fetching products.' };
-  } finally {
-    isLoading.value = false;
-  }
-};
-
-onMounted(() => {
-  loadProducts(currentPage.value);
-});
-
-const handleFileImport = async (event) => {
-  const file = event.target.files[0];
-  if (!file) {
-    console.error('No file selected');
-    uploadMessage.value = "Please select a file";
-    return;
-  }
-  // Verify it's a CSV file
-  if (!file.name.endsWith('.csv')) {
-    uploadMessage.value = "Please select a CSV file";
-    uploadErrors.value = ['Invalid file type. Please upload a CSV file.'];
-    return;
-  }
-  
-  try {
-    isLoading.value = true;
-    uploadMessage.value = "Uploading file...";
-    await importCSV(file);
-    uploadMessage.value = "File imported successfully!";
-    uploadErrors.value = [];
-    await loadProducts(currentPage.value);
-  } catch (error) {
-    console.error("Error importing CSV:", error);
-    if (error.response?.status === 422) {
-      const errors = error.response.data.errors;
-      uploadErrors.value = Object.values(errors).flat();
-      uploadMessage.value = '';
-    } else {
-      uploadMessage.value = "Error importing file.";
-      uploadErrors.value = [];
-    }
-  } finally {
-    isLoading.value = false;
-    // Reset file input
-    event.target.value = '';
-  }
-};
-
-const changePage = (page) => {
-  if (page >= 1 && page <= totalPages.value) {
-    currentPage.value = page;
-    loadProducts(page);
-  }
-};
-</script>
-
 <template>
   <main class="p-4">
     <div class="flex justify-between items-center mb-4">
@@ -103,12 +15,10 @@ const changePage = (page) => {
       </label>
     </div>
     
-    <!-- Loading State -->
     <div v-if="isLoading" class="flex justify-center items-center py-4">
       <div class="loader"></div>
     </div>
     
-    <!-- Feedback Messages -->
     <div v-if="uploadMessage" class="p-4 mb-4 bg-green-50 text-green-700 rounded-md">
       {{ uploadMessage }}
     </div>
@@ -119,7 +29,6 @@ const changePage = (page) => {
     </div>
     
     <table class="table-auto w-full border-collapse border border-gray-300">
-      <!-- Table header and body remain the same -->
       <thead>
         <tr class="bg-gray-100">
           <th class="border border-gray-300 px-4 py-2">Serial No.</th>
@@ -171,7 +80,113 @@ const changePage = (page) => {
 </main>
 </template>
 
-<style>
+<script setup>
+import { useProductsStore } from "@/stores/product";
+import { storeToRefs } from "pinia";
+import { ref, onMounted } from "vue";
+
+const { fetchProducts } = useProductsStore();
+const { products, errors } = storeToRefs(useProductsStore());
+
+const currentPage = ref(1);
+const totalPages = ref(0);
+const perPage = ref(10);
+const uploadMessage = ref('');
+const uploadErrors = ref([]);
+const isLoading = ref(false);
+
+const loadProducts = async (page = 1) => {
+  try {
+    isLoading.value = true;
+    const response = await fetchProducts(page);
+    
+    if (response && response.data && response.data.data) {
+      products.value = response.data.data;
+      totalPages.value = response.data.last_page || 1;
+      perPage.value = response.data.per_page || 10;
+    } else {
+      products.value = [];
+      errors.value = { message: 'No products found.' };
+    }
+  } catch (error) {
+    console.error('Error fetching products:', error);
+    products.value = [];
+    errors.value = { message: 'An error occurred while fetching products.' };
+  } finally {
+    isLoading.value = false;
+  }
+};
+
+onMounted(() => {
+  loadProducts(currentPage.value);
+});
+
+const changePage = (page) => {
+  if (page >= 1 && page <= totalPages.value) {
+    currentPage.value = page;
+    loadProducts(page);
+  }
+};
+
+// Handle CSV file import directly using fetch
+const handleFileImport = async (event) => {
+  const file = event.target.files[0];
+  if (file) {
+    const formData = new FormData();
+    formData.append('csv', file);
+    
+    try {
+      isLoading.value = true; // Set loading state
+      const token = localStorage.getItem("token");
+      
+      if (!token) {
+        throw new Error('No authentication token found');
+      }
+      
+      const response = await fetch("http://127.0.0.1:8000/api/import-products", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: "application/json",
+        },
+        body: formData,
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        
+        if (response.status === 422) {
+          const errorsList = errorData.errors;
+          uploadErrors.value = Object.values(errorsList).flat();
+          uploadMessage.value = '';
+        } else {
+          uploadMessage.value = 'Error importing file.';
+          uploadErrors.value = [];
+        }
+        
+        throw new Error('Failed to import file');
+      }
+      
+      const data = await response.json();
+      
+      console.log('File uploaded successfully:', data);
+      uploadMessage.value = 'File imported successfully!';
+      uploadErrors.value = [];
+      
+      await loadProducts(currentPage.value); // Reload products after import
+    } catch (error) {
+      console.error('Error uploading file:', error);
+      
+      uploadMessage.value = 'Error importing file.';
+      uploadErrors.value.push(error.message);
+    } finally {
+      isLoading.value = false; // Reset loading state
+    }
+  }
+};
+</script>
+
+<style scoped>
 .btn {
   display: inline-block;
   padding: 0.5rem 1rem;
@@ -189,13 +204,11 @@ const changePage = (page) => {
 .btn-primary {
   background-color: #007bff;
   color: #fff;
-  border-radius: 0.25rem;
 }
 
 .btn-secondary {
   background-color: #6c757d;
   color: #fff;
-  border-radius: 0.25rem;
 }
 
 .loader {
@@ -204,11 +217,10 @@ const changePage = (page) => {
   border-radius: 50%;
   width: 40px;
   height: 40px;
-  animation: spin 1s linear infinite;
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 </style>

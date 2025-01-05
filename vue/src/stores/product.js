@@ -4,6 +4,8 @@ export const useProductsStore = defineStore("productsStore", {
   state: () => ({
     products: [],
     errors: null,
+    uploadMessage: '',
+    uploadErrors: [],
   }),
 
   actions: {
@@ -47,67 +49,5 @@ export const useProductsStore = defineStore("productsStore", {
       }
     },
 
-    async importCSV(file) {
-      // Create a new FormData instance
-      const formData = new FormData();
-  
-      // Add the file with 'csv' as the key
-      formData.append('csv', file, file.name);
-  
-      // Log the FormData entries to verify the file is attached
-      for (let [key, value] of formData.entries()) {
-          console.log('FormData entry:', key, value instanceof File ? {
-              name: value.name,
-              type: value.type,
-              size: value.size
-          } : value);
-      }
-  
-      try {
-          console.log('Starting CSV import');
-          const token = localStorage.getItem("token");
-  
-          if (!token) {
-              throw new Error('No authentication token found');
-          }
-  
-          // Make sure we're using the correct API URL
-          const url = import.meta.env.VITE_API_URL ? 
-              `${import.meta.env.VITE_API_URL}/api/import-products` : 
-              '/api/import-products';
-  
-          console.log('Sending request to:', url);
-  
-          const res = await fetch(url, {
-              method: "POST",
-              headers: {
-                  Authorization: `Bearer ${token}`,
-                  // Do not manually set Content-Type; it will be set automatically by FormData
-              },
-              body: formData,
-          });
-  
-          console.log('Response status:', res.status);
-          const data = await res.json();
-          console.log('Response data:', data);
-  
-          if (res.ok) {
-              this.errors = null;
-              return data;
-          } else {
-              this.errors = data.errors || { message: "Failed to import CSV." };
-              throw { response: { status: res.status, data } };
-          }
-      } catch (error) {
-          console.error('Detailed import error:', error);
-  
-          // If it's a network error
-          if (!error.response) {
-              this.errors = { message: "Network error occurred while importing CSV" };
-          }
-          throw error;
-      }
-  }
-  
   },
 });

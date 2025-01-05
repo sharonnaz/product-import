@@ -1,5 +1,4 @@
 <script setup>
-import { usePostsStore } from "@/stores/posts";
 import { onMounted, ref } from "vue";
 import { RouterLink } from "vue-router";
 

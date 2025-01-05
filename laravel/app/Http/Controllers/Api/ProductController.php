@@ -15,7 +15,6 @@ class ProductController extends BaseController
 {
     public function importProduct(ProductImportRequest $request)
     {
-        // dd($request->all());
         if( $request->has('csv') ) 
         {
             $csv    = file($request->csv);
