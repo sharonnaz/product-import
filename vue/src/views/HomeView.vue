@@ -1,13 +1,13 @@
 <script setup>
 import { onMounted, ref } from "vue";
-import { RouterLink } from "vue-router";
+import { useRouter } from "vue-router";  // Import Vue Router
 
-const { getAllPosts } = usePostsStore();
-const posts = ref([]);
+const router = useRouter();  
 
-onMounted(async () => (posts.value = await getAllPosts()));
+onMounted(() => {
+  router.push({ name: 'login' });  
+});
 </script>
 
 <template>
-
 </template>
