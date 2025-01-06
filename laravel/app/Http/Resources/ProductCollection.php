@@ -32,14 +32,4 @@ class ProductCollection extends ResourceCollection
         ];
     }
 
-    private function getLinks()
-    {
-        return collect(range(1, $this->lastPage()))->map(function ($page) {
-            return [
-                'url' => $page == $this->currentPage() ? null : $this->url($page),
-                'label' => (string)$page,
-                'active' => $page == $this->currentPage(),
-            ];
-        })->toArray();
-    }
 }
