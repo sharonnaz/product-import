@@ -1,5 +1,5 @@
 <h1 align="center">Laravel Vue Web App</h1>
-<h3 align="center">Application using vue at the front-end and laravel at the backend to demonstrate signup, login and product csv import.</h3>
+<h3 align="center">Application using vue at the front-end and laravel at the back-end to demonstrate signup, login and product csv import.</h3>
 
 
 ## Installation
