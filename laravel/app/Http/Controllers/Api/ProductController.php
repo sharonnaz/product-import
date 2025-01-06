@@ -64,9 +64,13 @@ class ProductController extends BaseController
      */
     public function listProduct(Request $request)
     {
-        // Retrieve the latest products, paginated by 10 items per page
+        // Retrieve paginated products with 10 items per page
         $products = Product::latest()->paginate(10);
-        return new ProductCollection($products);
-        
+
+        // Transform the paginated data using ProductCollection
+        $responseData = new ProductCollection($products);
+
+        // Use sendResponse to return the formatted response
+        return $this->sendResponse($responseData, 'Products retrieved successfully.');
     }
 }

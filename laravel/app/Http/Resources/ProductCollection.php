@@ -14,36 +14,21 @@ class ProductCollection extends ResourceCollection
      */
     public function toArray($request)
     {
+        // Transform the paginated data
         return [
-            'success' => true,
-            'data' => [
-                'current_page' => $this->currentPage(),
-                'data' => $this->collection,
-                'first_page_url' => $this->url(1),
-                'from' => $this->firstItem(),
-                'last_page' => $this->lastPage(),
-                'last_page_url' => $this->url($this->lastPage()),
-                'links' => [
-                    [
-                        'url' => $this->previousPageUrl(),
-                        'label' => '&laquo; Previous',
-                        'active' => false,
-                    ],
-                    ...$this->getLinks(),
-                    [
-                        'url' => $this->nextPageUrl(),
-                        'label' => 'Next &raquo;',
-                        'active' => false,
-                    ],
-                ],
-                'next_page_url' => $this->nextPageUrl(),
-                'path' => $this->path(),
-                'per_page' => $this->perPage(),
-                'prev_page_url' => $this->previousPageUrl(),
-                'to' => $this->lastItem(),
-                'total' => $this->total(),
-            ],
-            'message' => "Products retrieved successfully."
+            'current_page' => $this->currentPage(),
+            'data' => ProductResource::collection($this->collection),
+            'first_page_url' => $this->url(1),
+            'from' => $this->firstItem(),
+            'last_page' => $this->lastPage(),
+            'last_page_url' => $this->url($this->lastPage()),
+            'links' => $this->linkCollection()->toArray(),
+            'next_page_url' => $this->nextPageUrl(),
+            'path' => $this->path(),
+            'per_page' => $this->perPage(),
+            'prev_page_url' => $this->previousPageUrl(),
+            'to' => $this->lastItem(),
+            'total' => $this->total(),
         ];
     }
 
