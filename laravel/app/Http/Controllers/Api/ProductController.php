@@ -8,6 +8,7 @@ use App\Jobs\ImportProducts;
 use Illuminate\Support\Facades\Bus;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\ProductResource;
+use App\Http\Resources\ProductCollection;
 use App\Http\Requests\ProductImportRequest;
 use App\Http\Controllers\Api\BaseController as BaseController;
 
@@ -65,8 +66,7 @@ class ProductController extends BaseController
     {
         // Retrieve the latest products, paginated by 10 items per page
         $products = Product::latest()->paginate(10);
-
-        // Return the products with a success response
-        return $this->sendResponse($products, 'Products retrieved successfully.');
+        return new ProductCollection($products);
+        
     }
 }
