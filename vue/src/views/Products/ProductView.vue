@@ -170,7 +170,7 @@ const handleFileImport = async (event) => {
       const data = await response.json();
       
       console.log('File uploaded successfully:', data);
-      uploadMessage.value = 'File imported in progress ....';
+      uploadMessage.value = 'File import in progress ....';
       uploadErrors.value = [];
       
       await loadProducts(currentPage.value); // Reload products after import
